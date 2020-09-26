@@ -168,11 +168,11 @@ def detect_landmarks(input_frame, face_detector, landmark_predictor, BLINK_COUNT
         if draw:
             cv2.putText(function_frame, "Blinks: {}".format(TOTAL_BLINKS), (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.putText(function_frame, "EAR: {:.2f}".format(ear), (250, 30),
+            cv2.putText(function_frame, "EAR: {:.2f}".format(ear), (270, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.putText(function_frame, "BD: {:.2f}".format(ete_dist), (370, 30),
+            cv2.putText(function_frame, "BD: {:.2f}".format(ete_dist), (390, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.putText(function_frame, "MAR: {:.2f}".format(mar), (500, 30),
+            cv2.putText(function_frame, "MAR: {:.2f}".format(mar), (510, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)    
             cv2.putText(function_frame, "In Blink: {:.2f}".format(1 if BLINK_COUNTER > CONSECUTIVE_FRAMES else 0), (10, 450),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
