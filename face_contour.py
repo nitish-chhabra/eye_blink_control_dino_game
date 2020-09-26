@@ -21,27 +21,32 @@ def eye_aspect_ratio(eye):
     # return the eye aspect ratio
     return ear
 
-def mouth_aspect_ration(inner_mouth):
+def mouth_aspect_ration(mouth):
     # print("Entered MAR")
     # Compute the euclidean distances between the two sets of
     # vertical inner mouth landmarks (x, y)-coordinates
-    A = dist.euclidean(inner_mouth[2], inner_mouth[6])
+    A = dist.euclidean(mouth[3], mouth[9])
     # compute the euclidean distance between the horizontal
     # eye landmark (x, y)-coordinates
-    B = dist.euclidean(inner_mouth[0], inner_mouth[4])
+    B = dist.euclidean(mouth[0], mouth[6])
     # compute the eye aspect ratio
     mar = A / B
     # return the eye aspect ratio
     return mar
 
-def eye_to_eyebrow_distance(eye, eyebrow):
+def eye_to_eyebrow_distance(eye, eyebrow, eye_side):
     # print("Entered Eye to Eyebrow")
     # compute distance of 3rd and 4th point in eyebrow
     # with 2nd and 3rd point in the eye
-    A = dist.euclidean(eye[0], eyebrow[0])
-    B = dist.euclidean(eye[3], eyebrow[4])
+    if eye_side == "right":
+        A = dist.euclidean(eye[0], eyebrow[0])
+    else:
+        A = dist.euclidean(eye[-1], eyebrow[-1])
     # compute the eye aspect ratio
-    eye_to_eyebrow_distance = (A + B) / (2.0)
+
+    C = dist.euclidean(eye[1], eyebrow[2])
+    D = dist.euclidean(eye[2], eyebrow[3])
+    eye_to_eyebrow_distance = (C + D) / (A * 2.0) 
     # return the eye to eyebrow distance
     return eye_to_eyebrow_distance
 
@@ -74,7 +79,7 @@ def detect_landmarks(input_frame, face_detector, landmark_predictor, BLINK_COUNT
         (reStart, reEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
         (lebStart, lebEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eyebrow"]
         (rebStart, rebEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eyebrow"]
-        (mStart, mebEnd) = face_utils.FACIAL_LANDMARKS_IDXS["inner_mouth"]
+        (mStart, mebEnd) = face_utils.FACIAL_LANDMARKS_IDXS["mouth"]
         
         # Helper Information on how to use the above dictionary:
         # Face utils helps in extracting various face features without need to remember id locations for each feature
@@ -103,8 +108,8 @@ def detect_landmarks(input_frame, face_detector, landmark_predictor, BLINK_COUNT
 		# coordinates to compute the eye to eyebrow distance for both eyes
         leftEyeBrow = shape[lebStart:lebEnd]
         rightEyeBrow = shape[rebStart:rebEnd]
-        leftEyeToEyebrow = eye_to_eyebrow_distance(leftEye, leftEyeBrow)
-        rightEyeToEyebrow = eye_to_eyebrow_distance(rightEye, rightEyeBrow)
+        leftEyeToEyebrow = eye_to_eyebrow_distance(leftEye, leftEyeBrow, "left")
+        rightEyeToEyebrow = eye_to_eyebrow_distance(rightEye, rightEyeBrow, "right")
         # average the eye aspect ratio together for both eyes
         ete_dist = (leftEyeToEyebrow + rightEyeToEyebrow) / 2.0
 
@@ -218,7 +223,7 @@ if __name__ == "__main__":
             output_frame, _, BLINK_COUNTER, BROW_COUNTER, MAR_COUNTER, TOTAL_BLINKS = detect_landmarks(frame, face_detector, landmark_predictor, BLINK_COUNTER, BROW_COUNTER, TOTAL_BLINKS, EYE_AR_THRESH, CONSECUTIVE_FRAMES, EYEBROW_DIST_THRESH, MAR_COUNTER, MAR_THRESH)
             end_time = time.time()
             fps = round(1/(end_time-start_time),2)
-            cv2.putText(output_frame, "FPS: {}".format(fps), (120, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            cv2.putText(output_frame, "FPS: {}".format(fps), (130, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             # output_frame = cv2.resize(output_frame,(1920,1080),fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
             stack = np.hstack([frame,output_frame])
             cv2.imshow("Frame", stack) 

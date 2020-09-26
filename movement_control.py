@@ -33,7 +33,7 @@ while(cap.isOpened()):
     got_frame, frame = cap.read() 
 
     if got_frame:
-        start_time = time.time()
+        start_time = time.time() 
         # function_frame, decisions, BLINK_COUNTER, BROW_COUNTER, MAR_COUNTER, TOTAL_BLINKS = detect_landmarks(frame, face_detector, landmark_predictor, BLINK_COUNTER, BROW_COUNTER, TOTAL_BLINKS, EYE_AR_THRESH, CONSECUTIVE_FRAMES, EYEBROW_DIST_THRESH, MAR_COUNTER, MAR_THRESH, draw=1)
         decisions, BLINK_COUNTER, BROW_COUNTER, MAR_COUNTER, TOTAL_BLINKS = detect_landmarks(frame, face_detector, landmark_predictor, BLINK_COUNTER, BROW_COUNTER, TOTAL_BLINKS, EYE_AR_THRESH, CONSECUTIVE_FRAMES, EYEBROW_DIST_THRESH, MAR_COUNTER, MAR_THRESH, draw=0)
         print(decisions)
@@ -41,13 +41,16 @@ while(cap.isOpened()):
         try:
             if decisions["mouth_opened"] == 1:
                 print("Pressing space")
+                pyautogui.keyUp('down')
                 pyautogui.press('space')
 
-            elif decisions["browed"] == 1:
-                print("Pressing down")
-                pyautogui.keydown('down')
-                pyautogui.keyup('down')
-                # pass
+            else:
+                if decisions["browed"]:
+                    pyautogui.keyDown('down')
+                elif decisions["browed"] == 0:
+                    pyautogui.keyUp('down')
+                else:
+                    pass
         except Exception as e:
             print(e)
 
@@ -64,4 +67,4 @@ while(cap.isOpened()):
             break  # finishing the loop
   
 cv2.destroyAllWindows()
-cap.release()   
+cap.release()                      
