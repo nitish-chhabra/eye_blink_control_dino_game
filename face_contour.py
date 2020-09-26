@@ -114,13 +114,13 @@ def detect_landmarks(input_frame, face_detector, landmark_predictor, BLINK_COUNT
         # otherwise, the eye aspect ratio is not below the blink
         # threshold
         else:
-            # if the eyes were closed for a sufficient number of
+            # if the eyes were closed for a sufficient number of frames
             # then increment the total number of blinks
             if BLINK_COUNTER >= EYE_AR_CONSEC_FRAMES:
                 TOTAL += 1
                 decisions["blinked"] = 1
             # reset the eye frame counter
-            BLINK_COUNTER = 0
+                BLINK_COUNTER = 0
         
         if ete_dist > EYEBROW_DIST_THRESH:
             BROW_COUNTER += 1
@@ -141,7 +141,7 @@ def detect_landmarks(input_frame, face_detector, landmark_predictor, BLINK_COUNT
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             cv2.putText(function_frame, "BD: {:.2f}".format(ete_dist), (420, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.putText(function_frame, "In Blink: {:.2f}".format(decisions["blinked"]), (10, 450),
+            cv2.putText(function_frame, "In Blink: {:.2f}".format(1 if BLINK_COUNTER > EYE_AR_CONSEC_FRAMES else 0), (10, 450),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             cv2.putText(function_frame, "In Brow: {:.2f}".format(decisions["browed"]), (200, 450),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
@@ -157,7 +157,7 @@ def detect_landmarks(input_frame, face_detector, landmark_predictor, BLINK_COUNT
             pass
 
     if draw:
-        return function_frame, BLINK_COUNTER, BROW_COUNTER , TOTAL
+        return function_frame, decisions, BLINK_COUNTER, BROW_COUNTER , TOTAL
     else:
         return decisions, BLINK_COUNTER, BROW_COUNTER, TOTAL
 
