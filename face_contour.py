@@ -21,7 +21,7 @@ def eye_aspect_ratio(eye):
     # return the eye aspect ratio
     return ear
 
-def mouth_aspect_ration(mouth):
+def mouth_aspect_ratio(mouth):
     # print("Entered MAR")
     # Compute the euclidean distances between the two sets of
     # vertical inner mouth landmarks (x, y)-coordinates
@@ -44,8 +44,8 @@ def eye_to_eyebrow_distance(eye, eyebrow, eye_side):
         A = dist.euclidean(eye[-1], eyebrow[-1])
     # compute the eye aspect ratio
 
-    C = dist.euclidean(eye[1], eyebrow[2])
-    D = dist.euclidean(eye[2], eyebrow[3])
+    C = dist.euclidean(eye[5], eyebrow[2])
+    D = dist.euclidean(eye[4], eyebrow[3])
     eye_to_eyebrow_distance = (C + D) / (A * 2.0) 
     # return the eye to eyebrow distance
     return eye_to_eyebrow_distance
@@ -79,7 +79,7 @@ def detect_landmarks(input_frame, face_detector, landmark_predictor, BLINK_COUNT
         (reStart, reEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
         (lebStart, lebEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eyebrow"]
         (rebStart, rebEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eyebrow"]
-        (mStart, mebEnd) = face_utils.FACIAL_LANDMARKS_IDXS["mouth"]
+        (mStart, mEnd) = face_utils.FACIAL_LANDMARKS_IDXS["mouth"]
         
         # Helper Information on how to use the above dictionary:
         # Face utils helps in extracting various face features without need to remember id locations for each feature
@@ -113,8 +113,8 @@ def detect_landmarks(input_frame, face_detector, landmark_predictor, BLINK_COUNT
         # average the eye aspect ratio together for both eyes
         ete_dist = (leftEyeToEyebrow + rightEyeToEyebrow) / 2.0
 
-        inner_mouth = rightEyeBrow = shape[mStart:mebEnd]
-        mar = mouth_aspect_ration(inner_mouth)
+        mouth = rightEyeBrow = shape[mStart:mEnd]
+        mar = mouth_aspect_ratio(mouth)
  
         # compute the convex hull for the left and right eye, then
         # visualize each of the eyes
@@ -166,20 +166,20 @@ def detect_landmarks(input_frame, face_detector, landmark_predictor, BLINK_COUNT
         # draw the TOTAL_BLINKS number of blinks on the frame along with
         # the computed eye aspect ratio for the frame
         if draw:
-            cv2.putText(function_frame, "Blinks: {}".format(TOTAL_BLINKS), (10, 30),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.putText(function_frame, "EAR: {:.2f}".format(ear), (270, 30),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.putText(function_frame, "BD: {:.2f}".format(ete_dist), (390, 30),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.putText(function_frame, "MAR: {:.2f}".format(mar), (510, 30),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)    
-            cv2.putText(function_frame, "In Blink: {:.2f}".format(1 if BLINK_COUNTER > CONSECUTIVE_FRAMES else 0), (10, 450),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.putText(function_frame, "In Brow: {:.2f}".format(decisions["browed"]), (200, 450),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.putText(function_frame, "Mouth Open: {:.2f}".format(decisions["mouth_opened"]), (400, 450),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)    
+            cv2.putText(function_frame, "Blinks: {}".format(TOTAL_BLINKS), (220, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            cv2.putText(function_frame, "EAR: {:.2f}".format(ear), (170, 60),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            cv2.putText(function_frame, "BD: {:.2f}".format(ete_dist), (290, 60),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            cv2.putText(function_frame, "MAR: {:.2f}".format(mar), (410, 60),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)    
+            cv2.putText(function_frame, "Blink: {:.0f}".format(1 if BLINK_COUNTER > CONSECUTIVE_FRAMES else 0), (150, 450),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            cv2.putText(function_frame, "Brow: {:.0f}".format(decisions["browed"]), (250, 450),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            cv2.putText(function_frame, "Mouth Open: {:.0f}".format(decisions["mouth_opened"]), (350, 450),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)    
 
             # We are then accesing the landmark points  
             for n in range(0, 68): 
@@ -223,10 +223,10 @@ if __name__ == "__main__":
             output_frame, _, BLINK_COUNTER, BROW_COUNTER, MAR_COUNTER, TOTAL_BLINKS = detect_landmarks(frame, face_detector, landmark_predictor, BLINK_COUNTER, BROW_COUNTER, TOTAL_BLINKS, EYE_AR_THRESH, CONSECUTIVE_FRAMES, EYEBROW_DIST_THRESH, MAR_COUNTER, MAR_THRESH)
             end_time = time.time()
             fps = round(1/(end_time-start_time),2)
-            cv2.putText(output_frame, "FPS: {}".format(fps), (130, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            cv2.putText(output_frame, "FPS: {}".format(fps), (350, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
             # output_frame = cv2.resize(output_frame,(1920,1080),fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
-            stack = np.hstack([frame,output_frame])
-            cv2.imshow("Frame", stack) 
+            # stack = np.hstack([frame,output_frame])
+            cv2.imshow("Frame", output_frame) 
             key = cv2.waitKey(1) 
             if key == 27: 
                 break # press esc the frame is destroyed
